@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="Deck of Cards User Guide">
+    <meta name="author" content="Patrick Kilgore">
+    <link rel="icon" href="img/favicon.ico">
+
+    <title>Deck of Cards API How-To Guide</title>
+
+    <!-- Bootstrap core CSS / theme modified to Superhero from Bootwatch -->
+    <link href="bootstrap/css/bootstrap-superhero.css" rel="stylesheet">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="bootstrap/assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/starter-template.css" rel="stylesheet">
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="bootstrap/assets/js/ie-emulation-modes-warning.js"></script>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Deck of Cards API User Guide</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#decks">Decks</a></li>
+            <li><a href="#drawing">Drawing Cards</a></li>
+			<li><a href="#piles">Piles</a></li>
+			<li><a href="#conclusion">Closing Remarks</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+
+      <div class="guide-title">
+        <h1>Deck of Cards API User Guide</h1>
+        <p class="lead">An introduction to a handy tool for building your own card game web apps.</p>
+      </div>
+	  
+	  <div class="well">
+        <h1>Introduction to the Deck of Cards API</h1>
+        <p>This guide will walk though basic usage of the <a href="http://http://deckofcardsapi.com/">Deck of Cards API</a>. This API provdies useful functionality for 
+		developers building their own web-based games which use standard playing cards.</p>
+		<h3>What does the Deck of Cards API do?</h3>
+		<p>The Deck of Cards API provides several functions which simulate common actions associated with card games. These include generating and shuffling a standard deck of cards or drawing a card from a deck.
+		The API also introduces the concept of piles which act as containers for cards and serve to simulate things like a player's hand of cards or a discard pile. This eliminates the need for a developer to
+		implement their own functions to accomplish these actions and instead focus on the functions unique to their game.</p>
+		<h3>What do I need to know to get started?</h3>
+		<p>As the primary use of the Deck of Cards API is to enable integration of card and deck handling functionality into a developer's own web-based card game, it is assumed that the reader has an understanding of
+		the basics of HTML and Javascript. The provided code examples will make use of AJAX to show the results of calls to the API without reloading this page.</p>
+		<p>Unlike many other API services, the Deck of Cards API does not require developers to register an account or obtain a developer key for their app. This helps to make API calls shorter and easier to assemble.</p>
+		<h3>Important Note</h3>
+		<p>The code examples presented below build off of one another and are actually implemented in this page, so please 
+		be sure to click all the buttons along the way!</p>
+      </div>
+	  
+	  <div class="well" id="decks">
+        <h1>Generating and Shuffling Decks</h1>
+        <p>As with any card game, one must start with getting a deck to play with. The API has a few methods available for generating a deck. The easiest and most straightforward of these methods is to get a 
+		brand new deck that has never been shuffled. That is, you would draw cards from such a deck in the order ace of spades, 2 of spades, 3 of spades, ... king of spades. This order would repeat through the 
+		diamonds, clubs, and hearts suits. The following Javascript code will call the new deck function:</p>
+		<pre>var baseAPIURL = "https://deckofcardsapi.com/api/";
+		
+// Assume we have a button with id = "newDeckGet" in our HTML
+document.getElementById('newDeckGet').addEventListener('click', function(event){
+    var req = new XMLHttpRequest();
+    var newDeckURL = baseAPIURL + "new/";		// https://deckofcardsapi.com/api/new/
+    req.open('GET', newDeckURL, true);
+    req.addEventListener('load',function(){
+        if(req.status >= 200 && req.status < 400){
+            var newDeck = JSON.parse(req.responseText);
+            document.getElementById('newDeckResponse').textContent = "Response: " + JSON.stringify(newDeck, null, 2);
+        } else {
+            console.log("Error in network request: " + req.statusText);
+    }});
+    req.send(null);
+    event.preventDefault();
+});
+		</pre>
+		<button class="btn btn-primary" type="button" id="newDeckGet">Get a brand new deck</button>
+		<pre class = "callResponseText" id="newDeckResponse"></pre>
+        
+		<p>As you can see, the API returns a JSON object containing parameters describing the generated deck. 
+		The most important of these is the "deck_id" key, which is an ID string the Deck of Cards server uses to 
+		identify a particular deck. This ID key will be needed later for the card drawing functions. The response 
+		also includes useful information about the deck such as whether or not it has been shuffled and how many 
+		cards remain in the deck.</p>
+		<p>While this gives us some basic insight into what a deck object looks like in Javascript, unfortunately
+		one is rarely ever allowed to play a card game with a brand new, unshuffled deck. Luckily the API provides
+		a function to shuffle a deck it has generated. Consider the following example:</p>
+		<pre>document.getElementById('shuffleDeck').addEventListener('click', function(event){
+    var req = new XMLHttpRequest();
+    var shuffleURL = baseAPIURL + "deck/" + newDeck.deck_id + "/shuffle/";
+    req.open('GET', shuffleURL, true);
+    req.addEventListener('load',function(){
+        if(req.status >= 200 && req.status < 400){
+            newDeck = JSON.parse(req.responseText);
+            document.getElementById('deckShuffleResponse').textContent = "Response: " + JSON.stringify(newDeck, null, 2);
+        } else {
+            console.log("Error in network request: " + req.statusText);
+    }});
+    req.send(null);
+    event.preventDefault();
+});
+		</pre>
+		<button class="btn btn-primary" type="button" id="shuffleDeck">Shuffle deck</button>
+		<pre class = "callResponseText" id="deckShuffleResponse"></pre>
+		
+		<p>If all went according to plan, the response to this call should look almost identical to the new 
+	  deck call except that the "shuffled" key is now set to true. Generating a shuffled deck in this manner is 
+	  all well and good; however, the Deck of Cards API offers a method to condense the deck generation and 
+	  shuffling into a single API call. This call also allows one to generate a deck that is composed of more 
+	  than one standard 52 card deck, e.g. a deck to represent a 6-deck blackjack dealing shoe. To invoke this new 
+	  functionality, the query string <code>deck_count=n</code> where <code>n</code> is the number of standard decks 
+	  to combine and has a default value of 1. The following code sample demonstrates this call:</p>
+	  
+	  <pre>var newShuffledDeck;
+  
+document.getElementById('newShuffledDeck').addEventListener('click', function(event){
+    var req = new XMLHttpRequest();
+    var nDecks = 1;
+    var shuffleURL = baseAPIURL + "deck/new/shuffle/?deck_count=" + nDecks;
+    req.open('GET', shuffleURL, true);
+    req.addEventListener('load',function(){
+        if(req.status >= 200 && req.status < 400){
+            newShuffledDeck = JSON.parse(req.responseText);
+            document.getElementById('newShuffledDeckResponse').textContent = "Response: "  + JSON.stringify(newShuffledDeck, null, 2);
+        } else {
+            console.log("Error in network request: " + req.statusText);
+    }});
+    req.send(null);
+    event.preventDefault();
+});
+	  </pre>
+	  <button class="btn btn-primary" type="button" id="newShuffledDeck">Get a shuffled deck</button>
+	  <pre class = "callResponseText" id="newShuffledDeckResponse"></pre>
+	  
+	  <p>As you can see, this response is almost identical to the previous result aside from the unique deck_id 
+	  associated with this new deck. If you like, you could call the deck shuffle function again with this new 
+	  deck_id.</p>
+      </div>
+	  
+	  <div class="well" id="drawing">
+        <h1>Drawing Cards</h1>
+        <p>Now that we are able to create shuffled decks, let's now look at drawing cards from a deck. The Deck of 
+		Cards API actually allows you to draw more than one card at a time using the query string 
+		<code>count=n</code> where <code>n</code> is the number of cards drawn. The returned JSON object will 
+		contain an array of cards as shown below:</p>
+		<pre>var drawnCards;
+  
+document.getElementById('drawCards').addEventListener('click', function(event){
+    var req = new XMLHttpRequest();
+    var nCards = 3;
+    var drawURL = baseAPIURL + "deck/"+ newShuffledDeck.deck_id + "/draw/?count=" + nCards;
+    req.open('GET', drawURL, true);
+    req.addEventListener('load',function(){
+        if(req.status >= 200 && req.status < 400){
+            drawnCards = JSON.parse(req.responseText);
+            document.getElementById('drawnCards').textContent = "Response: " + JSON.stringify(newShuffledDeck, null, 2);
+            for (var i = 0; i < nCards; i++) {
+                var cardImg = document.createElement("img");
+                cardImg.setAttribute("src", drawnCards.cards[i].image);
+                cardImg.setAttribute("height", "150");
+                document.getElementById("drawnCardImgs").appendChild(cardImg);
+            }
+        } else {
+            console.log("Error in network request: " + req.statusText);
+    }});
+    req.send(null);
+    event.preventDefault();
+});
+		</pre>
+        <button class="btn btn-primary" type="button" id="drawCards">Draw 3 cards</button>
+	    <pre class = "callResponseText" id="drawnCards"></pre>
+		<div id="drawnCardImgs"></div>
+		
+		<p>There's a lot going on with this response string since we're getting information about both the 
+		drawn cards and the deck we're drawing from, so let's look at it piece by piece. The act of 
+		drawing 3 cards from our deck reduces the size of the deck by 3, so the "remaining" field gets 
+		updated to reflect this alteration to the deck. We then have an array of card objects which contain 
+		useful information about the cards such as their suit, rank, and links to PNG image files we can 
+		insert in our HTML to display the associated images (which I've done with the help of a few DOM
+		functions). Take note of the "code" field belonging to the card objects as these can used in query 
+		strings when we look at discarding cards to piles later.</p>
+      </div>
+	  
+	  <div class="well" id="piles">
+        <h1>All About Piles</h1>
+        <p>A pile is a data contruct used by Deck of Cards to represent any collection of cards that is not 
+		a deck. This can mean something like, as the name suggests, a discard pile, but it can also be used to 
+		represent a player's hand of cards. The developer can create unique names for any needed piles, and 
+		these pile names are included in the request URLs associated with adding to and drawing from piles.</p>
+		<p>Adding cards to a pile is as simple as passing card codes in the query string as discussed previously. 
+		The following code gives an example of building a pile from the cards drawn in the previous section:</p>
+        
+		<pre>document.getElementById('addPile').addEventListener('click', function(event){
+    var req = new XMLHttpRequest();
+    var nCards = 3;
+    var pileAddURL = baseAPIURL + "deck/"+ newShuffledDeck.deck_id + "/pile/hand1/add/?cards=";
+    for (var i = 0; i < nCards; i++){
+        pileAddURL += drawnCards.cards[i].code;
+        if (i < nCards - 1)
+            pileAddURL += ",";
+    }
+    req.open('GET', pileAddURL, true);
+    req.addEventListener('load',function(){
+        if(req.status >= 200 && req.status < 400){
+            var hand1Pile = JSON.parse(req.responseText);
+            document.getElementById('addedToPile').textContent = "Response: " + JSON.stringify(hand1Pile, null, 2);
+        } else {
+            console.log("Error in network request: " + req.statusText);
+    }});
+    req.send(null);
+    event.preventDefault();
+});
+		</pre>
+        <button class="btn btn-primary" type="button" id="addPile">Add to the pile</button>
+	    <pre class = "callResponseText" id="addedToPile"></pre>
+		
+		<p>The information returned in this call mainly pertains to the status of the deck and its associated piles 
+		after this add operation has completed. As expected, we end up with 3 cards in our pile and 49 cards left 
+		in the deck.</p>
+		<p>Since we're pretending this particular pile represents a player's hand, it's likely that at some point 
+		the player will need to play a card in their hand. In Deck of Cards parlance, this is equivalent to drawing 
+		a card from a pile. Note that piles are treated as stack data structures, i.e. the last card added to the 
+		pile will be the first one drawn by default. The pile draw function will operate with this behavior by 
+		default, but it is possible to specify a particular card to draw using the card code in the query string. 
+		A code example of drawing from a pile is shown below:</p>
+		
+		<pre>document.getElementById('drawPile').addEventListener('click', function(event){
+    var req = new XMLHttpRequest();
+    var drawURL = baseAPIURL + "deck/"+ newShuffledDeck.deck_id + "/pile/hand1/draw/?cards=";
+    // draw from the bottom of the hand1 pile stack, i.e. drawnCards.cards[0]
+    drawURL += drawnCards.cards[0].code;
+    req.open('GET', drawURL, true);
+    req.addEventListener('load',function(){
+        if(req.status >= 200 && req.status < 400){
+            var drawnPileCards = JSON.parse(req.responseText);
+            document.getElementById('drawnFromPile').textContent = "Response: " + JSON.stringify(drawnPileCards, null, 2);
+        } else {
+            console.log("Error in network request: " + req.statusText);
+    }});
+    req.send(null);
+    event.preventDefault();
+});
+		</pre>
+        <button class="btn btn-primary" type="button" id="drawPile">Draw from the pile</button>
+	    <pre class = "callResponseText" id="drawnFromPile"></pre>
+		<p>The returned JSON object contains information about the pile status, the drawn card(s), and the deck_id. 
+		We see that the number of cards remaining in the pile is updated by the draw action. We also can see that 
+		the card which was returned was the same as the first card drawn from the deck in the 
+		<a href="#drawing">previous example</a>.</p>
+      </div>
+	  
+	  <div class="well" id="conclusion">
+		<h1>Closing Remarks</h1>
+		<p>Hopefully you've gained enough understanding of the Deck of Cards API that you can now sally forth and 
+		start building your own card games. The API calls themselves are fairly straightforward and do not require 
+		terribly complicated request URLs or query strings, so that should make life easier for you.</p>
+	  </div>
+    </div><!-- /.container -->
+
+	<script src="js/deck_of_cards_how_to.js"></script>
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="bootstrap/assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="bootstrap/assets/js/ie10-viewport-bug-workaround.js"></script>
+  </body>
+</html>
